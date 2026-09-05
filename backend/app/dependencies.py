@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import SessionLocal
 from app.core.security import decode_access_token
-from app.models import User, UserStatus
+from app.models import Role, User, UserStatus
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -37,7 +37,11 @@ def get_current_user(
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token")
 
-    user = db.scalar(select(User).options(selectinload(User.roles).selectinload("permissions")).where(User.id == user_id))
+    user = db.scalar(
+        select(User)
+        .options(selectinload(User.roles).selectinload(Role.permissions))
+        .where(User.id == user_id)
+    )
     if user is None or user.status != UserStatus.ACTIVE:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is not active")
     return user
