@@ -1,4 +1,4 @@
-.PHONY: up down api-test
+.PHONY: up down test migrate seed
 
 up:
 	docker compose up -d
@@ -6,5 +6,11 @@ up:
 down:
 	docker compose down
 
-api-test:
-	cd backend && pip install -r requirements.txt && pip install pytest httpx && pytest -q
+test:
+	cd backend && pip install -r requirements.txt && pytest -q
+
+migrate:
+	cd backend && alembic upgrade head
+
+seed:
+	cd backend && python scripts/seed_access_control.py
