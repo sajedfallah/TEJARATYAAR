@@ -1,55 +1,104 @@
 # TEJARATYAAR
 
-## Customs Operations CRM Platform
+> Telegram-first Customs Operations CRM for customs clearance companies.
 
-TEJARATYAAR is a Telegram-first Customs Operations Management platform designed for customs clearance companies.
+## Status
 
-## Vision
+**V1 Foundation — active development**
 
-Create a complete operational system around:
+The repository is the single source of truth for product decisions, architecture, implementation, tests, and release history.
 
-- Case Management
-- Customer Portal
-- Task Management
-- Document Management
-- Workflow Automation
-- Telegram Bot + Mini App
-- Operational Dashboards
+## Product scope
 
-## Current Phase
+- Case / Pre-Case management
+- Customer and contact management
+- Customs and case-type configuration
+- Tasks, activities, milestones and commitments
+- Document center and customer document requests
+- Customer requests and customer-facing updates
+- Internal Case Room and notifications
+- Role-based access control and case-level isolation
+- Manager / Supervisor / Employee / Customer workspaces
+- Audit trail, reporting, CSAT and exports
+- Telegram Bot + Telegram Mini App
 
-V1 Foundation
+## Architecture
+
+```text
+Telegram Bot / Mini App
+          |
+       FastAPI
+          |
+   Modular Business Layer
+      /          \
+PostgreSQL      Redis/Worker
+          |
+     Object Storage
+```
+
+V1 intentionally uses a **modular monolith**. This keeps the first release maintainable while leaving clear boundaries for future extraction of services.
+
+## Repository layout
+
+```text
+backend/      FastAPI, domain logic, database and API
+frontend/     React + TypeScript Telegram Mini App
+bot/          Telegram bot runtime
+worker/       Background jobs
+migrations/  Database migration history
+scripts/      Developer/operations scripts
+docs/         Product, architecture and delivery documentation
+.github/      CI and repository automation
+tests/        Cross-module / E2E tests
+```
+
+## Local development
+
+### Infrastructure
+
+```bash
+docker compose up -d
+```
+
+This starts PostgreSQL and Redis for local development.
+
+### API
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Health check: `GET /health`
+
+### Tests
+
+```bash
+make api-test
+```
+
+## Engineering rules
+
+1. Business rules live on the server, never only in the UI.
+2. Customer data is isolated by server-side authorization.
+3. Important state changes are auditable.
+4. Case is the operational center of the product.
+5. No secrets are committed; `.env.example` contains placeholders only.
+6. Every feature requires validation, authorization and tests before release.
+7. Existing case/workflow history must not be broken by template changes.
 
 ## Documentation
 
-- `PROJECT_HANDOVER.md` - technical continuation document
-- `docs/PRODUCT_SPECIFICATION.md` - product blueprint
-- `docs/ARCHITECTURE.md` - system architecture
-- `docs/ROADMAP.md` - implementation roadmap
+- `PROJECT_HANDOVER.md` — project continuity and audit baseline
+- `docs/PRODUCT_SPECIFICATION.md` — product requirements
+- `docs/ARCHITECTURE.md` — technical architecture
+- `docs/DATABASE_DESIGN.md` — data model direction
+- `docs/DEVELOPMENT_RULES.md` — engineering standards
+- `docs/ROADMAP.md` — delivery plan
 
-## Planned Stack
+## License
 
-Backend:
-- Python
-- FastAPI
-- PostgreSQL
-- SQLAlchemy
-- Alembic
-
-Frontend:
-- React
-- TypeScript
-- Telegram Mini App
-
-Infrastructure:
-- Docker
-- Redis
-- Background Workers
-
-## Development Principles
-
-- Case is the center of the system
-- No operational promise should remain outside the system
-- Customer data must be isolated
-- Permissions are enforced server-side
-- Every important action is audited
+License policy will be finalized before the first public production release.
