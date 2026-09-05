@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Table, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String, Table, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,22 +23,22 @@ class CustomerType(str, enum.Enum):
 user_roles = Table(
     "user_roles",
     Base.metadata,
-    mapped_column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
-    mapped_column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
 )
 
 role_permissions = Table(
     "role_permissions",
     Base.metadata,
-    mapped_column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-    mapped_column("permission_id", UUID(as_uuid=True), ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True),
+    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
+    Column("permission_id", UUID(as_uuid=True), ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True),
 )
 
 team_members = Table(
     "team_members",
     Base.metadata,
-    mapped_column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
-    mapped_column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
 )
 
 
@@ -55,7 +55,7 @@ class User(Base, TimestampMixin):
     first_name: Mapped[str] = mapped_column(String(120))
     last_name: Mapped[str | None] = mapped_column(String(120))
     username: Mapped[str | None] = mapped_column(String(120))
-    status: Mapped[UserStatus] = mapped_column(Enum(UserStatus, name="user_status"), default=UserStatus.ACTIVE)
+    status: Mapped[UserStatus] = mapped_column(Enum(UserStatus, name="user_status"), default=UserStatus.ACTIVE, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     last_active_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
@@ -101,7 +101,7 @@ class Customer(Base, TimestampMixin):
     __tablename__ = "customers"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    customer_type: Mapped[CustomerType] = mapped_column(Enum(CustomerType, name="customer_type"))
+    customer_type: Mapped[CustomerType] = mapped_column(Enum(CustomerType, name="customer_type"), nullable=False)
     name: Mapped[str] = mapped_column(String(180), index=True)
     trade_name: Mapped[str | None] = mapped_column(String(180))
     phone: Mapped[str | None] = mapped_column(String(40))
